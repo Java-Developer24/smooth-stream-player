@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Header } from '../components/Header';
 import { VideoCard, VideoCardSkeleton } from '../components/VideoCard';
+import { ContinueWatchingSection } from '../components/ContinueWatching';
 import { useVideoApi } from '../hooks/useVideoApi';
+import { getContinueWatching } from '../services/watchHistory';
 import { AlertCircle, Film, RefreshCw } from 'lucide-react';
 
 import thumbnail1 from '../assets/video-thumbnail-1.jpg';
@@ -68,6 +70,17 @@ const Index = () => {
   const [videos, setVideos] = useState(MOCK_VIDEOS);
   const [isLoading, setIsLoading] = useState(true);
   const [useMockData, setUseMockData] = useState(true);
+  const [continueWatching, setContinueWatching] = useState([]);
+
+  // Load continue watching from localStorage
+  const loadContinueWatching = useCallback(() => {
+    const items = getContinueWatching();
+    setContinueWatching(items);
+  }, []);
+
+  useEffect(() => {
+    loadContinueWatching();
+  }, [loadContinueWatching]);
 
   useEffect(() => {
     const loadVideos = async () => {
@@ -116,7 +129,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="mb-12">
+        <div className="mb-10">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-3">
             Discover Videos
           </h1>
@@ -147,6 +160,14 @@ const Index = () => {
           </div>
         )}
 
+        {/* Continue Watching Section */}
+        {!isLoading && (
+          <ContinueWatchingSection 
+            items={continueWatching} 
+            onUpdate={loadContinueWatching}
+          />
+        )}
+
         {/* Error State */}
         {error && !useMockData && !isLoading && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -174,19 +195,24 @@ const Index = () => {
           </div>
         )}
 
-        {/* Video Grid */}
+        {/* All Videos Section */}
         {!isLoading && videos.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
-            {videos.map((video, index) => (
-              <div 
-                key={video.id} 
-                className="animate-slide-up"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <VideoCard video={video} />
-              </div>
-            ))}
-          </div>
+          <>
+            <h2 className="text-xl font-semibold text-foreground mb-4">
+              All Videos
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
+              {videos.map((video, index) => (
+                <div 
+                  key={video.id} 
+                  className="animate-slide-up"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <VideoCard video={video} />
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Empty State */}

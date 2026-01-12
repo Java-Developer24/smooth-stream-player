@@ -1,11 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ENDPOINTS, PLAYER_CONFIG } from '../config/api';
-
-// Get auth token if available
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('auth_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { ENDPOINTS, PLAYER_CONFIG, getAuthHeaders } from '../config/api';
 
 // Fetch with retry logic
 const fetchWithRetry = async (url, options = {}, retries = PLAYER_CONFIG.MAX_RETRIES) => {
